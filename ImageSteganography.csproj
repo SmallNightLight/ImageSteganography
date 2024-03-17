@@ -6,6 +6,19 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Source\JpegLibrary\apps\**" />
+    <Compile Remove="Source\JpegLibrary\build\**" />
+    <Compile Remove="Source\JpegLibrary\tests\**" />
+    <EmbeddedResource Remove="Source\JpegLibrary\apps\**" />
+    <EmbeddedResource Remove="Source\JpegLibrary\build\**" />
+    <EmbeddedResource Remove="Source\JpegLibrary\tests\**" />
+    <None Remove="Source\JpegLibrary\apps\**" />
+    <None Remove="Source\JpegLibrary\build\**" />
+    <None Remove="Source\JpegLibrary\tests\**" />
+  </ItemGroup>
 
 </Project>
