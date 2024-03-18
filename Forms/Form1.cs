@@ -1,3 +1,6 @@
+using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+
 namespace ImageSteganography
 {
     public partial class Form1 : Form
@@ -32,23 +35,32 @@ namespace ImageSteganography
             DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
             if (dataEmbedderLSB.Enocode(EncodingPath.Text, EncodingMessage.Text))
             {
-                //Succesfully encoded the image
+                AddToConsole("Succesfully encoded the image");
+            }
+            else
+            {
+                AddToConsole("Failed to encoded the image");
             }
         }
 
         private void DecodeButton_Click(object sender, EventArgs e)
         {
             DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
-            
+
             if (dataEmbedderLSB.Decode(EncodingPath.Text, out string message))
             {
-                //Succesfully decoded the image
+                AddToConsole("Succesfully decoded the image");
                 DecodingMessage.Text = message;
             }
             else
             {
-                DecodingMessage.Text = "An error occured while decoding the image";
+                AddToConsole("An error occured while decoding the image");
             }
+        }
+
+        private void AddToConsole(string message)
+        {
+            ImageConsole.Text = message;
         }
     }
 }

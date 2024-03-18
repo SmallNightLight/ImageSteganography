@@ -14,6 +14,9 @@ namespace ImageSteganography
         {
             if (TryLoadBitmap(imagePath, out Bitmap originalBitmap))
             {
+                int width = originalBitmap.Width;
+                int height = originalBitmap.Height;
+
                 string directory = Path.GetDirectoryName(imagePath);
                 string newImageName = Path.GetFileNameWithoutExtension(imagePath) + "Message.jpg";
                 string newImagePath = Path.Combine(directory, newImageName);
@@ -29,18 +32,27 @@ namespace ImageSteganography
                 encoder.AddComponent(2, 1, 1, 1, 1, 1);     //Cb component
                 encoder.AddComponent(3, 1, 1, 1, 1, 1);     //Cr component
 
+               
                 Color[] rgba = GetPixelsFromBitmap(originalBitmap);
+                byte[] rgbaBytes = new byte[4 * width * height]; // Each pixel has 4 bytes (RGBA)
 
-                int width = originalBitmap.Width;
-                int height = originalBitmap.Height;
+                for (int i = 0; i < width * height; i++)
+                {
+                    int index = i * 4;
+                    rgbaBytes[index] = rgba[i].R; // Red component
+                    rgbaBytes[index + 1] = rgba[i].G; // Green component
+                    rgbaBytes[index + 2] = rgba[i].B; // Blue component
+                    rgbaBytes[index + 3] = rgba[i].A; // Alpha component
+                }
 
                 byte[] ycbcr = ArrayPool<byte>.Shared.Rent(3 * width * height);
                 NullBufferWriter writer = new NullBufferWriter();
 
+                JpegRgbToYCbCrConverter.Shared.ConvertRgba32ToYCbCr8(rgbaBytes, ycbcr, width * height);
+                originalBitmap.Dispose();
+
                 try
                 {
-                    JpegRgbToYCbCrConverter.Shared.ConvertRgba32ToYCbCr8(MemoryMarshal.AsBytes(rgba.AsSpan()), ycbcr, width * height);
-
                     using (BinaryReader reader = new BinaryReader(new FileStream(imagePath, FileMode.Open)))
                     {
                         long length = reader.BaseStream.Length;

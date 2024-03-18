@@ -40,6 +40,7 @@
             OpenDecodeFile = new Button();
             EncodeImageName = new Label();
             DecodeImageName = new Label();
+            ImageConsole = new TextBox();
             SuspendLayout();
             // 
             // EncodingPath
@@ -156,11 +157,22 @@
             DecodeImageName.Size = new Size(0, 15);
             DecodeImageName.TabIndex = 11;
             // 
+            // ImageConsole
+            // 
+            ImageConsole.Enabled = false;
+            ImageConsole.Location = new Point(184, 412);
+            ImageConsole.Multiline = true;
+            ImageConsole.Name = "ImageConsole";
+            ImageConsole.ReadOnly = true;
+            ImageConsole.Size = new Size(424, 35);
+            ImageConsole.TabIndex = 12;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(ImageConsole);
             Controls.Add(DecodeImageName);
             Controls.Add(EncodeImageName);
             Controls.Add(OpenDecodeFile);
@@ -192,5 +204,6 @@
         private Button OpenDecodeFile;
         private Label EncodeImageName;
         private Label DecodeImageName;
+        private TextBox ImageConsole;
     }
 }
