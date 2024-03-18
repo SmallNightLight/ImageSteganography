@@ -2,8 +2,6 @@ namespace ImageSteganography
 {
     public partial class Form1 : Form
     {
-        public string EncodeFilePath, DecodeFilePath;
-
         public Form1()
         {
             InitializeComponent();
@@ -14,7 +12,6 @@ namespace ImageSteganography
             OpenFileDialog fileDialog = new OpenFileDialog();
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                EncodeFilePath = fileDialog.FileName;
                 EncodingPath.Text = fileDialog.FileName;
                 EncodeImageName.Text = fileDialog.SafeFileName;
             }
@@ -25,9 +22,32 @@ namespace ImageSteganography
             OpenFileDialog fileDialog = new OpenFileDialog();
             if (fileDialog.ShowDialog() == DialogResult.OK)
             {
-                DecodeFilePath = fileDialog.FileName;
                 DecodingPath.Text = fileDialog.FileName;
                 DecodeImageName.Text = fileDialog.SafeFileName;
+            }
+        }
+
+        private void EncodeButton_Click(object sender, EventArgs e)
+        {
+            DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
+            if (dataEmbedderLSB.Enocode(EncodingPath.Text, EncodingMessage.Text))
+            {
+                //Succesfully encoded the image
+            }
+        }
+
+        private void DecodeButton_Click(object sender, EventArgs e)
+        {
+            DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
+            
+            if (dataEmbedderLSB.Decode(EncodingPath.Text, out string message))
+            {
+                //Succesfully decoded the image
+                DecodingMessage.Text = message;
+            }
+            else
+            {
+                DecodingMessage.Text = "An error occured while decoding the image";
             }
         }
     }

@@ -10,7 +10,7 @@ namespace ImageSteganography
 {
     public class DataEmbedderLSB
     {
-        public void Enocode(string imagePath, string message)
+        public bool Enocode(string imagePath, string message)
         {
             if (TryLoadBitmap(imagePath, out Bitmap originalBitmap))
             {
@@ -52,27 +52,34 @@ namespace ImageSteganography
                         encoder.Encode();
                     }
                 }
-                finally
+                catch (Exception exeption)
                 {
-                    ArrayPool<byte>.Shared.Return(ycbcr);
-                    using (BinaryWriter outputStream = new BinaryWriter(new FileStream(newImagePath, FileMode.Create)))
-                    {
-                        byte[] data = writer.GetMemory().ToArray();
-                        outputStream.Write(data);
-                        Console.WriteLine($"Saved image to {imagePath}");
-                    }
+                    Console.WriteLine(exeption.Message);
+                    return false;
                 }
 
+                //Create new image from the new image data
+                ArrayPool<byte>.Shared.Return(ycbcr);
+                using (BinaryWriter outputStream = new BinaryWriter(new FileStream(newImagePath, FileMode.Create)))
+                {
+                    byte[] data = writer.GetMemory().ToArray();
+                    outputStream.Write(data);
+                    Console.WriteLine($"Saved image to {imagePath}");
+
+                    return true;
+                }
             }
             else
             {
                 Console.WriteLine($"Failed to load image: {imagePath}");
+                return false;
             }
         }
 
-        public void Decode()
+        public bool Decode(string imagePath, out string message)
         {
-
+            message = "No decoding coded";
+            return true;
         }
 
         public static bool TryLoadBitmap(string path, out Bitmap result)

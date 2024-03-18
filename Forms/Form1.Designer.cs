@@ -60,6 +60,7 @@
             EncodeButton.TabIndex = 1;
             EncodeButton.Text = "Encode";
             EncodeButton.UseVisualStyleBackColor = true;
+            EncodeButton.Click += EncodeButton_Click;
             // 
             // DecodeButton
             // 
@@ -69,6 +70,7 @@
             DecodeButton.TabIndex = 2;
             DecodeButton.Text = "Decode";
             DecodeButton.UseVisualStyleBackColor = true;
+            DecodeButton.Click += DecodeButton_Click;
             // 
             // EncodingMessage
             // 
