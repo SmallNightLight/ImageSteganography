@@ -8,7 +8,7 @@
 
         public F5Random()
         {
-            this.random = new Random();
+            this.random = new Random(200);
         }
 
         /// <summary>

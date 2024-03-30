@@ -8,6 +8,7 @@ namespace F5.James
 {
     using F5.Crypt;
     using F5.Util;
+    using ImageSteganography;
 
     public sealed class JpegEncoder : IDisposable
     {
@@ -18,6 +19,8 @@ namespace F5.James
         private EmbedData embeddedData;
         private readonly int imageHeight, imageWidth;
         private int n = 0, quality;
+
+        private DataEmbedder _dataEmbedder;
 
         /// <summary>
         /// 
@@ -50,18 +53,14 @@ namespace F5.James
             }
         }
 
-        public void Compress()
+        public void Encode(string message, DataEmbedder dataEmbedder)
         {
+            embeddedData = new EmbedData(Encoding.UTF8.GetBytes(message));
+            _dataEmbedder = dataEmbedder;
             WriteHeaders();
             WriteCompressedData();
             WriteEOI();
             this.output.Flush();
-        }
-
-        public void Compress(string message)
-        {
-            embeddedData = new EmbedData(Encoding.UTF8.GetBytes(message));
-            Compress();
         }
 
         void WriteArray(byte[] data)
@@ -402,183 +401,186 @@ namespace F5.James
                     usable * 80 / changed % 10 + " bits per change)");
             }
 
-            // westfeld
-            if (this.embeddedData != null)
-            {
-                // Now we embed the secret data in the permutated sequence.
-                Console.WriteLine("Permutation starts");
-                F5Random random = new F5Random();
-                Permutation permutation = new Permutation(coeffCount, random);
-                int nextBitToEmbed = 0;
-                int byteToEmbed = Convert.ToInt32(this.embeddedData.Length);
-                int availableBitsToEmbed = 0;
-                // We start with the length information. Well,
-                // the length information it is more than one
-                // byte, so this first "byte" is 32 bits long.
+            //Embedd data
+            _dataEmbedder.EmbeddMessage(ref coeff);
 
-                /*try {
-                    byteToEmbed = this.embeddedData.available();
-                } catch (final Exception e) {
-                    e.printStackTrace();
-                }*/
+            //// westfeld
+            //if (this.embeddedData != null)
+            //{
+            //    // Now we embed the secret data in the permutated sequence.
+            //    Console.WriteLine("Permutation starts");
+            //    F5Random random = new F5Random();
+            //    Permutation permutation = new Permutation(coeffCount, random);
+            //    int nextBitToEmbed = 0;
+            //    int byteToEmbed = Convert.ToInt32(this.embeddedData.Length);
+            //    int availableBitsToEmbed = 0;
+            //    // We start with the length information. Well,
+            //    // the length information it is more than one
+            //    // byte, so this first "byte" is 32 bits long.
+
+            //    /*try {
+            //        byteToEmbed = this.embeddedData.available();
+            //    } catch (final Exception e) {
+            //        e.printStackTrace();
+            //    }*/
 
 
-                Console.WriteLine("Embedding of " + (byteToEmbed * 8 + 32) + " bits (" + byteToEmbed + "+4 bytes) ");
-                // We use the most significant byte for the 1 of n
-                // code, and reserve one extra bit for future use.
-                if (byteToEmbed > 0x007fffff)
-                {
-                    byteToEmbed = 0x007fffff;
-                }
-                // We calculate n now
-                for (i = 1; i < 8; i++)
-                {
-                    int usable;
-                    this.n = (1 << i) - 1;
-                    usable = _expected * i / this.n - _expected * i / this.n % this.n;
-                    usable /= 8;
-                    if (usable == 0)
-                    {
-                        break;
-                    }
-                    if (usable < byteToEmbed + 4)
-                    {
-                        break;
-                    }
-                }
-                int k = i - 1;
-                this.n = (1 << k) - 1;
-                switch (this.n)
-                {
-                    case 0:
-                        Console.WriteLine("using default code, file will not fit");
-                        this.n++;
-                        break;
-                    case 1:
-                        Console.WriteLine("using default code");
-                        break;
-                    default:
-                        Console.WriteLine("using (1, " + this.n + ", " + k + ") code");
-                        break;
-                }
-                byteToEmbed |= k << 24; // store k in the status word
-                // Since shuffling cannot hide the distribution, the
-                // distribution of all bits to embed is unified by
-                // adding a pseudo random bit-string. We continue the random
-                // we used for Permutation, initially seeked with password.
-                byteToEmbed ^= random.GetNextByte();
-                byteToEmbed ^= random.GetNextByte() << 8;
-                byteToEmbed ^= random.GetNextByte() << 16;
-                byteToEmbed ^= random.GetNextByte() << 24;
-                nextBitToEmbed = byteToEmbed & 1;
-                byteToEmbed >>= 1;
-                availableBitsToEmbed = 31;
-                _embedded++;
+            //    Console.WriteLine("Embedding of " + (byteToEmbed * 8 + 32) + " bits (" + byteToEmbed + "+4 bytes) ");
+            //    // We use the most significant byte for the 1 of n
+            //    // code, and reserve one extra bit for future use.
+            //    if (byteToEmbed > 0x007fffff)
+            //    {
+            //        byteToEmbed = 0x007fffff;
+            //    }
+            //    // We calculate n now
+            //    for (i = 1; i < 8; i++)
+            //    {
+            //        int usable;
+            //        this.n = (1 << i) - 1;
+            //        usable = _expected * i / this.n - _expected * i / this.n % this.n;
+            //        usable /= 8;
+            //        if (usable == 0)
+            //        {
+            //            break;
+            //        }
+            //        if (usable < byteToEmbed + 4)
+            //        {
+            //            break;
+            //        }
+            //    }
+            //    int k = i - 1;
+            //    this.n = (1 << k) - 1;
+            //    switch (this.n)
+            //    {
+            //        case 0:
+            //            Console.WriteLine("using default code, file will not fit");
+            //            this.n++;
+            //            break;
+            //        case 1:
+            //            Console.WriteLine("using default code");
+            //            break;
+            //        default:
+            //            Console.WriteLine("using (1, " + this.n + ", " + k + ") code");
+            //            break;
+            //    }
+            //    byteToEmbed |= k << 24; // store k in the status word
+            //    // Since shuffling cannot hide the distribution, the
+            //    // distribution of all bits to embed is unified by
+            //    // adding a pseudo random bit-string. We continue the random
+            //    // we used for Permutation, initially seeked with password.
+            //    byteToEmbed ^= random.GetNextByte();
+            //    byteToEmbed ^= random.GetNextByte() << 8;
+            //    byteToEmbed ^= random.GetNextByte() << 16;
+            //    byteToEmbed ^= random.GetNextByte() << 24;
+            //    nextBitToEmbed = byteToEmbed & 1;
+            //    byteToEmbed >>= 1;
+            //    availableBitsToEmbed = 31;
+            //    _embedded++;
 
-                for (i = 0; i < permutation.Length; i++)
-                {
-                    int shuffled_index = permutation.GetShuffled(i);
+            //    for (i = 0; i < permutation.Length; i++)
+            //    {
+            //        int shuffled_index = permutation.GetShuffled(i);
 
-                    if (shuffled_index % 64 == 0 || coeff[shuffled_index] == 0)
-                        continue;
+            //        if (shuffled_index % 64 == 0 || coeff[shuffled_index] == 0)
+            //            continue;
 
-                    var cc = coeff[shuffled_index];
-                    _examined += 1;
+            //        var cc = coeff[shuffled_index];
+            //        _examined += 1;
 
-                    if (cc > 0 && (cc & 1) != nextBitToEmbed)
-                    {
-                        coeff[shuffled_index]--;
-                        _changed++;
-                    }
-                    else if (cc < 0 && (cc & 1) == nextBitToEmbed)
-                    {
-                        coeff[shuffled_index]++;
-                        _changed++;
-                    }
+            //        if (cc > 0 && (cc & 1) != nextBitToEmbed)
+            //        {
+            //            coeff[shuffled_index]--;
+            //            _changed++;
+            //        }
+            //        else if (cc < 0 && (cc & 1) == nextBitToEmbed)
+            //        {
+            //            coeff[shuffled_index]++;
+            //            _changed++;
+            //        }
 
-                    if (coeff[shuffled_index] != 0)
-                    {
-                        if (availableBitsToEmbed == 0)
-                        {
-                            if (n > 1 || embeddedData.Available == 1)
-                                break;
+            //        if (coeff[shuffled_index] != 0)
+            //        {
+            //            if (availableBitsToEmbed == 0)
+            //            {
+            //                if (n > 1 || embeddedData.Available == 1)
+            //                    break;
 
-                            byteToEmbed = embeddedData.Read();
-                            byteToEmbed ^= random.GetNextByte();
-                            availableBitsToEmbed = 8;
-                        }
-                        nextBitToEmbed = byteToEmbed & 1;
-                        byteToEmbed >>= 1;
-                        availableBitsToEmbed--;
-                        _embedded++;
-                    }
-                    else
-                        _thrown++;
-                }
+            //                byteToEmbed = embeddedData.Read();
+            //                byteToEmbed ^= random.GetNextByte();
+            //                availableBitsToEmbed = 8;
+            //            }
+            //            nextBitToEmbed = byteToEmbed & 1;
+            //            byteToEmbed >>= 1;
+            //            availableBitsToEmbed--;
+            //            _embedded++;
+            //        }
+            //        else
+            //            _thrown++;
+            //    }
 
-                if (n > 1)
-                {
-                    bool isLastByte = false;
-                    FilteredCollection filtered_index = permutation.Filter(coeff, i + 1);
-                    while (!isLastByte)
-                    {
-                        int kBitsToEmbed = 0;
-                        for (i = 0; i < k; i++)
-                        {
-                            if (availableBitsToEmbed == 0)
-                            {
-                                if (embeddedData.Available == 0)
-                                {
-                                    isLastByte = true;
-                                    break;
-                                }
-                                byteToEmbed = embeddedData.Read();
-                                byteToEmbed ^= random.GetNextByte();
-                                availableBitsToEmbed = 8;
-                            }
-                            nextBitToEmbed = byteToEmbed & 1;
-                            byteToEmbed >>= 1;
-                            availableBitsToEmbed--;
-                            kBitsToEmbed |= nextBitToEmbed << i;
-                            _embedded++;
-                        }
+            //    if (n > 1)
+            //    {
+            //        bool isLastByte = false;
+            //        FilteredCollection filtered_index = permutation.Filter(coeff, i + 1);
+            //        while (!isLastByte)
+            //        {
+            //            int kBitsToEmbed = 0;
+            //            for (i = 0; i < k; i++)
+            //            {
+            //                if (availableBitsToEmbed == 0)
+            //                {
+            //                    if (embeddedData.Available == 0)
+            //                    {
+            //                        isLastByte = true;
+            //                        break;
+            //                    }
+            //                    byteToEmbed = embeddedData.Read();
+            //                    byteToEmbed ^= random.GetNextByte();
+            //                    availableBitsToEmbed = 8;
+            //                }
+            //                nextBitToEmbed = byteToEmbed & 1;
+            //                byteToEmbed >>= 1;
+            //                availableBitsToEmbed--;
+            //                kBitsToEmbed |= nextBitToEmbed << i;
+            //                _embedded++;
+            //            }
 
-                        List<int> codeWord = filtered_index.Offer(this.n);
-                        int extractedBit;
-                        while (true)
-                        {
-                            int vhash = 0;
-                            int count = codeWord.Count;
-                            for (i = 0; i < count; i++)
-                            {
-                                int index = codeWord[i];
-                                extractedBit = coeff[index] > 0 ? coeff[index] & 1 : (1 - (coeff[index] & 1));
-                                if (extractedBit == 1)
-                                {
-                                    vhash ^= i + 1;
-                                }
-                            }
-                            i = vhash ^ kBitsToEmbed;
-                            if (i == 0)
-                                break;
-                            i--;
+            //            List<int> codeWord = filtered_index.Offer(this.n);
+            //            int extractedBit;
+            //            while (true)
+            //            {
+            //                int vhash = 0;
+            //                int count = codeWord.Count;
+            //                for (i = 0; i < count; i++)
+            //                {
+            //                    int index = codeWord[i];
+            //                    extractedBit = coeff[index] > 0 ? coeff[index] & 1 : (1 - (coeff[index] & 1));
+            //                    if (extractedBit == 1)
+            //                    {
+            //                        vhash ^= i + 1;
+            //                    }
+            //                }
+            //                i = vhash ^ kBitsToEmbed;
+            //                if (i == 0)
+            //                    break;
+            //                i--;
 
-                            if (coeff[codeWord[i]] < 0)
-                                coeff[codeWord[i]]++;
-                            else
-                                coeff[codeWord[i]]--;
-                            _changed++;
+            //                if (coeff[codeWord[i]] < 0)
+            //                    coeff[codeWord[i]]++;
+            //                else
+            //                    coeff[codeWord[i]]--;
+            //                _changed++;
 
-                            if (coeff[codeWord[i]] == 0)
-                            {
-                                _thrown++;
-                                codeWord.RemoveAt(i);
-                                codeWord.Add(filtered_index.Offer());
-                            }
-                        }
-                    }
-                }
-            }
+            //                if (coeff[codeWord[i]] == 0)
+            //                {
+            //                    _thrown++;
+            //                    codeWord.RemoveAt(i);
+            //                    codeWord.Add(filtered_index.Offer());
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
 
             Console.WriteLine("Starting Huffman Encoding.");
             shuffledIndex = 0;

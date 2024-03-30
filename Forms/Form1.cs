@@ -33,17 +33,15 @@ namespace ImageSteganography
 
         private void EncodeButton_Click(object sender, EventArgs e)
         {
-            Embed.Run(EncodingPath.Text, EncodingMessage.Text);
-
-            //DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
-            //if (dataEmbedderLSB.Enocode(EncodingPath.Text, EncodingMessage.Text))
-            //{
-            //    AddToConsole("Succesfully encoded the image");
-            //}
-            //else
-            //{
-            //    AddToConsole("Failed to encoded the image");
-            //}
+            DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
+            if (dataEmbedderLSB.Enocode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage))
+            {
+                AddToConsole(resultMessage);
+            }
+            else
+            {
+                AddToConsole(resultMessage);
+            }
         }
 
         private void DecodeButton_Click(object sender, EventArgs e)

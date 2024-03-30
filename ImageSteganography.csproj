@@ -14,15 +14,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Source\JpegLibrary\apps\**" />
-    <Compile Remove="Source\JpegLibrary\build\**" />
-    <Compile Remove="Source\JpegLibrary\tests\**" />
-    <EmbeddedResource Remove="Source\JpegLibrary\apps\**" />
-    <EmbeddedResource Remove="Source\JpegLibrary\build\**" />
-    <EmbeddedResource Remove="Source\JpegLibrary\tests\**" />
-    <None Remove="Source\JpegLibrary\apps\**" />
-    <None Remove="Source\JpegLibrary\build\**" />
-    <None Remove="Source\JpegLibrary\tests\**" />
+    <Compile Remove="Source\JpegLibrary\**" />
+    <EmbeddedResource Remove="Source\JpegLibrary\**" />
+    <None Remove="Source\JpegLibrary\**" />
   </ItemGroup>
 
 </Project>
