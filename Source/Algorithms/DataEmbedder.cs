@@ -1,6 +1,4 @@
-﻿using F5.Util;
-
-namespace ImageSteganography
+﻿namespace ImageSteganography
 {
     public abstract class DataEmbedder
     {

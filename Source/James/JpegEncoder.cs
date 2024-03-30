@@ -360,47 +360,47 @@ namespace F5.James
             int _thrown = 0;
             int _zero = 0;
 
-            Console.WriteLine("got " + coeffCount + " DCT AC/DC coefficients");
-            for (i = 0; i < coeffCount; i++)
-            {
-                if (i % 64 == 0)
-                    continue;
-                else if (coeff[i] == 1 || coeff[i] == -1)
-                    _one++;
-                else if (coeff[i] == 0)
-                    _zero++;
-            }
-            _large = coeffCount - _zero - _one - coeffCount / 64;
-            _expected = _large + (int)(0.49 * _one);
-            //
+            //Console.WriteLine("got " + coeffCount + " DCT AC/DC coefficients");
+            //for (i = 0; i < coeffCount; i++)
+            //{
+            //    if (i % 64 == 0)
+            //        continue;
+            //    else if (coeff[i] == 1 || coeff[i] == -1)
+            //        _one++;
+            //    else if (coeff[i] == 0)
+            //        _zero++;
+            //}
+            //_large = coeffCount - _zero - _one - coeffCount / 64;
+            //_expected = _large + (int)(0.49 * _one);
+            ////
 
-            Console.WriteLine("one=" + _one);
-            Console.WriteLine("large=" + _large);
-            //
-            Console.WriteLine("expected capacity: " + _expected + " bits");
-            Console.WriteLine("expected capacity with");
+            //Console.WriteLine("one=" + _one);
+            //Console.WriteLine("large=" + _large);
+            ////
+            //Console.WriteLine("expected capacity: " + _expected + " bits");
+            //Console.WriteLine("expected capacity with");
 
-            for (i = 1; i < 8; i++)
-            {
-                int usable, changed, n;
-                n = (1 << i) - 1;
-                usable = _expected * i / n - _expected * i / n % n;
-                changed = coeffCount - _zero - coeffCount / 64;
-                changed = changed * i / n - changed * i / n % n;
-                changed = n * changed / (n + 1) / i;
-                //
-                changed = _large - _large % (n + 1);
-                changed = (changed + _one + _one / 2 - _one / (n + 1)) / (n + 1);
-                usable /= 8;
-                if (usable == 0)
-                    break;
-                if (i == 1)
-                    Console.WriteLine("default");
-                else
-                    Console.WriteLine("(1, " + n + ", " + i + ")");
-                Console.WriteLine(" code: " + usable + " bytes (efficiency: " + usable * 8 / changed + "." +
-                    usable * 80 / changed % 10 + " bits per change)");
-            }
+            //for (i = 1; i < 8; i++)
+            //{
+            //    int usable, changed, n;
+            //    n = (1 << i) - 1;
+            //    usable = _expected * i / n - _expected * i / n % n;
+            //    changed = coeffCount - _zero - coeffCount / 64;
+            //    changed = changed * i / n - changed * i / n % n;
+            //    changed = n * changed / (n + 1) / i;
+            //    //
+            //    changed = _large - _large % (n + 1);
+            //    changed = (changed + _one + _one / 2 - _one / (n + 1)) / (n + 1);
+            //    usable /= 8;
+            //    if (usable == 0)
+            //        break;
+            //    if (i == 1)
+            //        Console.WriteLine("default");
+            //    else
+            //        Console.WriteLine("(1, " + n + ", " + i + ")");
+            //    Console.WriteLine(" code: " + usable + " bytes (efficiency: " + usable * 8 / changed + "." +
+            //        usable * 80 / changed % 10 + " bits per change)");
+            //}
 
             //Embedd data
 
