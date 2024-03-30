@@ -6,6 +6,7 @@ namespace F5
 {
     using F5.Crypt;
     using F5.Ortega;
+    using ImageSteganography;
 
     public class JpegExtract : IDisposable
     {
@@ -24,7 +25,22 @@ namespace F5
             this.random = new F5Random();
         }
 
-        public void Extract(Stream input)
+        byte[] PackBoolsInByteArray(bool[] bools)
+        {
+            int len = bools.Length;
+            int bytes = len >> 3;
+            if ((len & 0x07) != 0) ++bytes;
+            byte[] arr2 = new byte[bytes];
+            for (int i = 0; i < bools.Length; i++)
+            {
+                if (bools[i])
+                    arr2[i >> 3] |= (byte)(1 << (i & 0x07));
+            }
+
+            return arr2;
+        }
+
+        public string Extract(Stream input, DataEmbedder dataEmbedder)
         {
             int[] coeff;
             int i, n, k, hash, code;
@@ -34,68 +50,77 @@ namespace F5
                  coeff = hd.Decode();
             }
 
-            Console.WriteLine("Permutation starts");
-            Permutation permutation = new Permutation(coeff.Length, this.random);
-            Console.WriteLine(coeff.Length + " indices shuffled");
+            List<bool> result = dataEmbedder.DecodeMessage(coeff);
+
+            byte[] byteArray = PackBoolsInByteArray(result.ToArray());
+
+            return Encoding.UTF8.GetString(byteArray);
+
+            // Decode byte array using UTF-8 encoding to get the original string
+            string originalString = Encoding.UTF8.GetString(byteArray);
+
+            //Console.WriteLine("Permutation starts");
+            //Permutation permutation = new Permutation(coeff.Length, this.random);
+            //Console.WriteLine(coeff.Length + " indices shuffled");
 
             // extract length information
-            CalcEmbeddedLength(permutation, coeff);
-            k = (this.extractedFileLength >> 24) % 32;
-            n = (1 << k) - 1;
-            this.extractedFileLength &= 0x007fffff;
+            //CalcEmbeddedLength(permutation, coeff);
+            //k = (this.extractedFileLength >> 24) % 32;
+            //n = (1 << k) - 1;
+            //this.extractedFileLength &= 0x007fffff;
 
-            Console.WriteLine("Length of embedded file: " + extractedFileLength + " bytes");
+            //Console.WriteLine("Length of embedded file: " + extractedFileLength + " bytes");
 
-            if (n > 0)
-            {
-                while (true)
-                {
-                    hash = 0;
-                    code = 1;
-                    while (code <= n)
-                    {
-                        this.pos++;
-                        if (this.pos >= coeff.Length)
-                            goto leaveContext;
-                        this.shuffledIndex = permutation.GetShuffled(this.pos);
-                        this.extractedBit = ExtractBit(coeff);
-                        if (this.extractedBit == -1)
-                            continue;
-                        else if (this.extractedBit == 1)
-                            hash ^= code;
-                        code++;
-                    }
+            //if (n > 0)
+            //{
+            //    while (true)
+            //    {
+            //        hash = 0;
+            //        code = 1;
+            //        while (code <= n)
+            //        {
+            //            this.pos++;
+            //            if (this.pos >= coeff.Length)
+            //                goto leaveContext;
+            //            this.shuffledIndex = permutation.GetShuffled(this.pos);
+            //            this.extractedBit = ExtractBit(coeff);
+            //            if (this.extractedBit == -1)
+            //                continue;
+            //            else if (this.extractedBit == 1)
+            //                hash ^= code;
+            //            code++;
+            //        }
 
-                    for (i = 0; i < k; i++)
-                    {
-                        this.extractedByte |= (hash >> i & 1) << this.availableExtractedBits++;
-                        if (this.availableExtractedBits == 8)
-                        {
-                            WriteExtractedByte();
-                            // check for pending end of embedded data
-                            if (this.nBytesExtracted == this.extractedFileLength)
-                                goto leaveContext;
-                        }
-                    }
-                }
-            }
-            else
-            {
-                while (++this.pos < coeff.Length && this.pos < permutation.Length)
-                {
-                    this.shuffledIndex = permutation.GetShuffled(this.pos);
-                    this.extractedBit = ExtractBit(coeff);
-                    if (this.extractedBit == -1)
-                        continue;
-                    this.extractedByte |= this.extractedBit << this.availableExtractedBits++;
-                    if (this.availableExtractedBits == 8)
-                    {
-                        WriteExtractedByte();
-                        if (this.nBytesExtracted == extractedFileLength)
-                            break;
-                    }
-                }
-            }
+            //        for (i = 0; i < k; i++)
+            //        {
+            //            this.extractedByte |= (hash >> i & 1) << this.availableExtractedBits++;
+            //            if (this.availableExtractedBits == 8)
+            //            {
+            //                WriteExtractedByte();
+            //                // check for pending end of embedded data
+            //                if (this.nBytesExtracted == this.extractedFileLength)
+            //                    goto leaveContext;
+            //            }
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    while (++this.pos < coeff.Length && this.pos < permutation.Length)
+            //    {
+            //        this.shuffledIndex = permutation.GetShuffled(this.pos);
+            //        this.extractedBit = ExtractBit(coeff);
+            //        if (this.extractedBit == -1)
+            //            continue;
+            //        this.extractedByte |= this.extractedBit << this.availableExtractedBits++;
+            //        if (this.availableExtractedBits == 8)
+            //        {
+            //            WriteExtractedByte();
+            //            if (this.nBytesExtracted == extractedFileLength)
+            //                break;
+            //        }
+            //    }
+            //}
         leaveContext: ;
             if (this.nBytesExtracted < this.extractedFileLength)
             {

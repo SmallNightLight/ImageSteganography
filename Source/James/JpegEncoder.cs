@@ -9,6 +9,7 @@ namespace F5.James
     using F5.Crypt;
     using F5.Util;
     using ImageSteganography;
+    using static System.Runtime.InteropServices.JavaScript.JSType;
 
     public sealed class JpegEncoder : IDisposable
     {
@@ -402,7 +403,9 @@ namespace F5.James
             }
 
             //Embedd data
-            _dataEmbedder.EmbeddMessage(ref coeff);
+
+            bool[] data = embeddedData.ReadBits().ToArray();
+            _dataEmbedder.EmbeddMessage(ref coeff, data);
 
             //// westfeld
             //if (this.embeddedData != null)

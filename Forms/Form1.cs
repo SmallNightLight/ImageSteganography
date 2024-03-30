@@ -46,19 +46,17 @@ namespace ImageSteganography
 
         private void DecodeButton_Click(object sender, EventArgs e)
         {
-            DecodingMessage.Text = Extract.Run(DecodingPath.Text);
+            DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
 
-            //DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
-
-            //if (dataEmbedderLSB.Decode(DecodingPath.Text, out string message))
-            //{
-            //    AddToConsole("Succesfully decoded the image");
-            //    DecodingMessage.Text = message;
-            //}
-            //else
-            //{
-            //    AddToConsole("An error occured while decoding the image");
-            //}
+            if (dataEmbedderLSB.Decode(DecodingPath.Text, out string message, out string resultMessage))
+            {
+                AddToConsole(resultMessage);
+                DecodingMessage.Text = message;
+            }
+            else
+            {
+                AddToConsole(resultMessage);
+            }
         }
 
         private void AddToConsole(string message)

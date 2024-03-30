@@ -32,6 +32,17 @@ namespace F5.Util
             b ^= Read();
             return b;
         }
+
+        public IEnumerable<bool> ReadBits()
+        {
+            int readByte;
+            while ((readByte = data.ReadByte()) >= 0)
+            {
+                for (int i = 7; i >= 0; i--)
+                    yield return ((readByte >> i) & 1) == 1;
+            }
+        }
+
         public long Available
         {
             get { return this.data.Length - this.data.Position; }
