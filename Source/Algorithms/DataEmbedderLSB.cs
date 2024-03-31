@@ -1,8 +1,10 @@
-﻿using BitMiracle.LibJpeg.Classic;
+﻿using BitMiracle.LibJpeg;
+using BitMiracle.LibJpeg.Classic;
 using F5;
 using F5.James;
 using F5.Ortega;
-using System.Diagnostics.Metrics;
+using System.Drawing.Imaging;
+using System.Drawing;
 using System.Text;
 
 namespace ImageSteganography
@@ -95,13 +97,16 @@ namespace ImageSteganography
             var height = img.Height;
             int hd = height / 8;
             int wd = width / 8;
+
+            MemoryStream memoryStream = new MemoryStream();
+            img.Save(memoryStream, ImageFormat.Jpeg);
             img.Dispose();
-            BitMiracle.LibJpeg.Classic.jpeg_decompress_struct oJpegDecompress = new BitMiracle.LibJpeg.Classic.jpeg_decompress_struct();
-            System.IO.FileStream oFileStreamImage = new System.IO.FileStream(fullPath, System.IO.FileMode.Open, System.IO.FileAccess.Read);
-            oJpegDecompress.jpeg_stdio_src(oFileStreamImage);
+
+            jpeg_decompress_struct oJpegDecompress = new jpeg_decompress_struct();
+            oJpegDecompress.jpeg_stdio_src(memoryStream);
             oJpegDecompress.jpeg_read_header(true);
-            BitMiracle.LibJpeg.Classic.jvirt_array<BitMiracle.LibJpeg.Classic.JBLOCK>[] JBlock = oJpegDecompress.jpeg_read_coefficients();
-            var block = JBlock[0].Access(0, hd); // accessing the element
+            jvirt_array<JBLOCK>[] JBlock = oJpegDecompress.jpeg_read_coefficients();
+            var block = JBlock[0].Access(0, hd);
             
             Random r = new Random();
 
@@ -132,11 +137,13 @@ namespace ImageSteganography
                     }
                 }
             }
+
             oJpegDecompress.jpeg_finish_decompress();
-            oFileStreamImage.Close();
-            ////
-            System.IO.FileStream objFileStreamMegaMap = System.IO.File.Create(newPath);
-            BitMiracle.LibJpeg.Classic.jpeg_compress_struct oJpegCompress = new BitMiracle.LibJpeg.Classic.jpeg_compress_struct();
+            memoryStream.Close();
+
+            FileStream objFileStreamMegaMap = File.Create(newPath);
+            jpeg_compress_struct oJpegCompress = new jpeg_compress_struct();
+
             oJpegCompress.jpeg_stdio_dest(objFileStreamMegaMap);
             oJpegDecompress.jpeg_copy_critical_parameters(oJpegCompress);
             oJpegCompress.Image_height = height;
