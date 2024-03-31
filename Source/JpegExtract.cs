@@ -50,14 +50,15 @@ namespace F5
                  coeff = hd.Decode();
             }
 
-            List<bool> result = dataEmbedder.DecodeMessage(coeff);
+            //List<bool> result = dataEmbedder.DecodeMessage(coeff);
+            //
+            //byte[] byteArray = PackBoolsInByteArray(result.ToArray());
 
-            byte[] byteArray = PackBoolsInByteArray(result.ToArray());
-
-            return Encoding.UTF8.GetString(byteArray);
+            return "";
+            //return Encoding.UTF8.GetString(byteArray);
 
             // Decode byte array using UTF-8 encoding to get the original string
-            string originalString = Encoding.UTF8.GetString(byteArray);
+            //string originalString = Encoding.UTF8.GetString(byteArray);
 
             //Console.WriteLine("Permutation starts");
             //Permutation permutation = new Permutation(coeff.Length, this.random);

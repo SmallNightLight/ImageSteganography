@@ -404,8 +404,8 @@ namespace F5.James
 
             //Embedd data
 
-            bool[] data = embeddedData.ReadBits().ToArray();
-            _dataEmbedder.EmbeddMessage(ref coeff, data);
+            //bool[] data = embeddedData.ReadBits().ToArray();
+            //_dataEmbedder.EmbeddMessage(ref coeff, data);
 
             //// westfeld
             //if (this.embeddedData != null)
