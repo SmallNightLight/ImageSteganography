@@ -1,7 +1,3 @@
-using F5;
-using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
-
 namespace ImageSteganography
 {
     public partial class Form1 : Form
@@ -34,29 +30,17 @@ namespace ImageSteganography
         private void EncodeButton_Click(object sender, EventArgs e)
         {
             DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
-            if (dataEmbedderLSB.Enocode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage))
-            {
-                AddToConsole(resultMessage);
-            }
-            else
-            {
-                AddToConsole(resultMessage);
-            }
+            dataEmbedderLSB.Enocode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage);
+            AddToConsole(resultMessage);
         }
 
         private void DecodeButton_Click(object sender, EventArgs e)
         {
             DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
 
-            if (dataEmbedderLSB.Decode(DecodingPath.Text, out string message, out string resultMessage))
-            {
-                AddToConsole(resultMessage);
-                DecodingMessage.Text = message;
-            }
-            else
-            {
-                AddToConsole(resultMessage);
-            }
+            dataEmbedderLSB.Decode(DecodingPath.Text, out string message, out string resultMessage);
+            AddToConsole(resultMessage);
+            DecodingMessage.Text = message;
         }
 
         private void AddToConsole(string message)
