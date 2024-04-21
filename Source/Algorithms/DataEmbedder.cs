@@ -58,7 +58,15 @@ namespace ImageSteganography
 
                 //Get message bits
                 var messageBytes = System.Text.Encoding.UTF8.GetBytes(message);
-                var messageBits = ReadBits(new MemoryStream(messageBytes)).ToArray();
+                
+                //Embedd message size first (4 bytes)
+                byte[] sizeBytes = BitConverter.GetBytes(messageBytes.Length);
+                byte[] messageWithSize = new byte[sizeBytes.Length + messageBytes.Length];
+                Array.Copy(sizeBytes, messageWithSize, sizeBytes.Length);
+                Array.Copy(messageBytes, 0, messageWithSize, sizeBytes.Length, messageBytes.Length);
+
+                //Read bits
+                var messageBits = ReadBits(new MemoryStream(messageWithSize)).ToArray();
 
                 //Embedd message into coefficients
                 EmbeddMessage(ref coefficients, messageBits, blockCountX, blockCountY);
@@ -113,7 +121,23 @@ namespace ImageSteganography
                 //Read
                 List<bool> messageBits = DecodeMessage(coefficients, blockCountX, blockCountY);
                 byte[] messageBytes = ConvertBitsToBytes(messageBits.ToArray());
-                message = System.Text.Encoding.UTF8.GetString(messageBytes);
+
+                if (messageBytes.Length < 4)
+                {
+                    message = "";
+                    resultMessage = "Could not read enough bytes to read any message";
+                    return false;
+                }
+
+                //Read size
+                byte[] messageSizeBytes = new byte[4];
+                Array.Copy(messageBytes, messageSizeBytes, 4);
+                int messageSize = BitConverter.ToInt32(messageSizeBytes);
+
+                byte[] finalMessage = new byte[messageSize];
+                Array.Copy(messageBytes, 4, finalMessage, 0, messageSize);
+
+                message = System.Text.Encoding.UTF8.GetString(finalMessage);
 
                 //Close file
                 imageStream.Close();
