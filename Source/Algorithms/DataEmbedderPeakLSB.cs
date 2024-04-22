@@ -4,7 +4,7 @@ namespace ImageSteganography
 {
     public class DataEmbedderPeakLSB : DataEmbedder
     {
-        private int[] indexes = { 1, 2, 3, 8, 9, 10, 16, 17, 24 };
+        private int[] indexes = { 2, 3, 9, 10, 16, 17, 24 }; //maaybe with 1 and 8 but that reduces it visible but gains a lot of capacity
 
         public override bool EmbeddMessage(ref JBLOCK[][][] coefficients, bool[] data, out int embeddSize)
         {

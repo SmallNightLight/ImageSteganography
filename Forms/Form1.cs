@@ -74,6 +74,9 @@ namespace ImageSteganography
                 case "PickC":
                     _dataEmbedder = new DataEmbedderPickC();
                     break;
+                case "SwapDCT":
+                    _dataEmbedder = new DataEmbedderSwapDCT();
+                    break;
             }
         }
 

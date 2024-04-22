@@ -153,6 +153,7 @@ namespace ImageSteganography
 
                 //Get coefficients
                 jvirt_array<JBLOCK>[] JBlock = jpegData.jpeg_read_coefficients();
+                //int v = jpegData.Input_iMCU_row;
                 JBLOCK[][][] coefficients =
                 {
                     JBlock[0].Access(0, hblocks0),
