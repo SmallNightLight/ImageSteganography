@@ -68,6 +68,9 @@ namespace ImageSteganography
                 case "LSBExclude01":
                     _dataEmbedder = new DataEmbedderLSBExcl01();
                     break;
+                case "PeakLSB":
+                    _dataEmbedder = new DataEmbedderPeakLSB();
+                    break;
                 case "PickC":
                     _dataEmbedder = new DataEmbedderPickC();
                     break;

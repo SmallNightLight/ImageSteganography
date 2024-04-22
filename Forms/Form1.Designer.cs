@@ -173,7 +173,7 @@
             // AlgorithmDropDown
             // 
             AlgorithmDropDown.FormattingEnabled = true;
-            AlgorithmDropDown.Items.AddRange(new object[] { "LSB", "LSBExclude01", "PickC" });
+            AlgorithmDropDown.Items.AddRange(new object[] { "LSB", "LSBExclude01", "PeakLSB", "PickC" });
             AlgorithmDropDown.Location = new Point(646, 125);
             AlgorithmDropDown.Name = "AlgorithmDropDown";
             AlgorithmDropDown.Size = new Size(121, 23);
