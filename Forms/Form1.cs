@@ -2,9 +2,13 @@ namespace ImageSteganography
 {
     public partial class Form1 : Form
     {
+        private DataEmbedder _dataEmbedder;
+
         public Form1()
         {
             InitializeComponent();
+            AlgorithmDropDown.SelectedItem = "LSB";
+            _dataEmbedder = new DataEmbedderLSB();
         }
 
         private void OpenEncodeFile_Click(object sender, EventArgs e)
@@ -29,16 +33,17 @@ namespace ImageSteganography
 
         private void EncodeButton_Click(object sender, EventArgs e)
         {
-            DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
-            dataEmbedderLSB.Enocode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage);
+            if (_dataEmbedder == null) return;
+
+            _dataEmbedder.Enocode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage);
             AddToConsole(resultMessage);
         }
 
         private void DecodeButton_Click(object sender, EventArgs e)
         {
-            DataEmbedderLSB dataEmbedderLSB = new DataEmbedderLSB();
+            if (_dataEmbedder == null) return;
 
-            dataEmbedderLSB.Decode(DecodingPath.Text, out string message, out string resultMessage);
+            _dataEmbedder.Decode(DecodingPath.Text, out string message, out string resultMessage);
             AddToConsole(resultMessage);
             DecodingMessage.Text = message;
         }
@@ -46,6 +51,24 @@ namespace ImageSteganography
         private void AddToConsole(string message)
         {
             ImageConsole.Text = message;
+        }
+
+        private void AlgorithmDropDown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            object? selector = AlgorithmDropDown.SelectedItem;
+
+            if (selector == null) return;
+
+            string? algorithm = selector.ToString();
+            switch (algorithm)
+            {
+                case "LSB":
+                    _dataEmbedder = new DataEmbedderLSB();
+                    break;
+                case "LSBExclude01":
+                    _dataEmbedder = new DataEmbedderLSBExcl01();
+                    break;
+            }
         }
     }
 }

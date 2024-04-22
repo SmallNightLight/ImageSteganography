@@ -41,6 +41,8 @@
             EncodeImageName = new Label();
             DecodeImageName = new Label();
             ImageConsole = new TextBox();
+            AlgorithmDropDown = new ComboBox();
+            button1 = new Button();
             SuspendLayout();
             // 
             // EncodingPath
@@ -167,11 +169,33 @@
             ImageConsole.Size = new Size(424, 35);
             ImageConsole.TabIndex = 12;
             // 
+            // AlgorithmDropDown
+            // 
+            AlgorithmDropDown.FormattingEnabled = true;
+            AlgorithmDropDown.Items.AddRange(new object[] { "LSB", "LSBExclude01" });
+            AlgorithmDropDown.Location = new Point(646, 125);
+            AlgorithmDropDown.Name = "AlgorithmDropDown";
+            AlgorithmDropDown.Size = new Size(121, 23);
+            AlgorithmDropDown.TabIndex = 13;
+            AlgorithmDropDown.SelectedIndexChanged += AlgorithmDropDown_SelectedIndexChanged;
+            // 
+            // button1
+            // 
+            button1.Location = new Point(702, 227);
+            button1.Name = "button1";
+            button1.Size = new Size(75, 23);
+            button1.TabIndex = 14;
+            button1.Text = "button1";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(button1);
+            Controls.Add(AlgorithmDropDown);
             Controls.Add(ImageConsole);
             Controls.Add(DecodeImageName);
             Controls.Add(EncodeImageName);
@@ -205,5 +229,7 @@
         private Label EncodeImageName;
         private Label DecodeImageName;
         private TextBox ImageConsole;
+        private ComboBox AlgorithmDropDown;
+        private Button button1;
     }
 }

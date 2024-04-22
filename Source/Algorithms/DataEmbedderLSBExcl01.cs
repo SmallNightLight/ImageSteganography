@@ -2,7 +2,7 @@
 
 namespace ImageSteganography
 {
-    public class DataEmbedderLSB : DataEmbedder
+    public class DataEmbedderLSBExcl01 : DataEmbedder
     {
         public override bool EmbeddMessage(ref JBLOCK[][][] coefficients, bool[] data, out int embeddSize)
         {
@@ -34,11 +34,12 @@ namespace ImageSteganography
                             bit = _random.Next(0, 2) == 1;
                         }
 
-                        counter++;
-
-                        //Change coefficient
                         int value = coefficients[channel][i][j][k];
 
+                        //Skip 0 and 1 values to reduce noise (also reduces capacity)
+                        if (value == 0 || value == 1) continue;
+
+                        //Change coefficient
                         if (bit)
                         {
                             //Set lsb to 1
@@ -51,6 +52,7 @@ namespace ImageSteganography
                         }
 
                         coefficients[channel][i][j][k] = (short)value;
+                        counter++;
                     }
                 }
             }
@@ -73,6 +75,9 @@ namespace ImageSteganography
                     for (int k = 0; k < 64; k++)
                     {
                         int value = coefficients[channel][i][j][k];
+
+                        if (value == 0 || value == 1) continue;
+
                         result.Add((value & 1) != 0);
                     }
                 }

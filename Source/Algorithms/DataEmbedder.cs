@@ -5,9 +5,11 @@ namespace ImageSteganography
 {
     public abstract class DataEmbedder
     {
-        public abstract bool EmbeddMessage(ref JBLOCK[][] coefficients, bool[] data, int blockCountX, int blockCountY);
+       protected Random _random = new Random();
 
-        public abstract List<bool> DecodeMessage(JBLOCK[][] coefficients, int blockCountX, int blockCountY);
+        public abstract bool EmbeddMessage(ref JBLOCK[][][] coefficients, bool[] data, out int embeddSize);
+
+        public abstract List<bool> DecodeMessage(JBLOCK[][][] coefficients);
 
 
         public bool Enocode(string imagePath, string message, out string resultMessage)
@@ -38,8 +40,13 @@ namespace ImageSteganography
                 var img = new Bitmap(imagePath);
                 var width = img.Width;
                 var height = img.Height;
-                int blockCountX = width / 8;
-                int blockCountY = height / 8;
+
+                int calh = (int)Math.Ceiling(img.Height / 8.0);
+                int calw = (int)Math.Ceiling(img.Width / 8.0);
+                int wblocks0 = calw % 2 == 0 ? calw : calw + 1;
+                int hblocks0 = calh % 2 == 0 ? calh : calh + 1;
+                int wblocks1 = calw % 2 == 0 ? calw / 2 : (calw + 1) / 2;
+                int hblocks1 = calh % 2 == 0 ? calh / 2 : (calh + 1) / 2;
 
                 //Create a new stream with the jpeg image data using the bitmap
                 MemoryStream memoryStream = new MemoryStream();
@@ -53,8 +60,14 @@ namespace ImageSteganography
                 jpeg_decompress_struct oJpegDecompress = new jpeg_decompress_struct();
                 oJpegDecompress.jpeg_stdio_src(memoryStream);
                 oJpegDecompress.jpeg_read_header(true);
+                
                 jvirt_array<JBLOCK>[] JBlock = oJpegDecompress.jpeg_read_coefficients();
-                var coefficients = JBlock[0].Access(0, blockCountY);
+                JBLOCK[][][] coefficients =
+                {
+                    JBlock[0].Access(0, hblocks0),
+                    JBlock[1].Access(0, hblocks1),
+                    JBlock[2].Access(0, hblocks1)
+                };
 
                 //Get message bits
                 var messageBytes = System.Text.Encoding.UTF8.GetBytes(message);
@@ -69,7 +82,7 @@ namespace ImageSteganography
                 var messageBits = ReadBits(new MemoryStream(messageWithSize)).ToArray();
 
                 //Embedd message into coefficients
-                EmbeddMessage(ref coefficients, messageBits, blockCountX, blockCountY);
+                EmbeddMessage(ref coefficients, messageBits, out int embeddSize);
 
                 //Compress the jpeg finally
                 oJpegDecompress.jpeg_finish_decompress();
@@ -88,7 +101,13 @@ namespace ImageSteganography
                 objFileStreamMegaMap.Close();
                 oJpegDecompress.jpeg_abort_decompress();
 
-                resultMessage = "Encoded image";
+
+                var original = new Bitmap(imagePath);
+                var modified = new Bitmap(newImagePath);
+
+                double psnr = CalculatePSNR(original, modified);
+
+                resultMessage = $"Encoded image (capacity: {embeddSize} bytes) (PSNR: {psnr})";
                 return true;
             }
             catch (Exception ex)
@@ -111,20 +130,30 @@ namespace ImageSteganography
                 //Get images data
                 int width = jpegData.Image_width;
                 int height = jpegData.Image_height;
-                int blockCountX = width / 8;
-                int blockCountY = height / 8;
+
+                int calh = (int)Math.Ceiling(height / 8.0);
+                int calw = (int)Math.Ceiling(width / 8.0);
+                int wblocks0 = calw % 2 == 0 ? calw : calw + 1;
+                int hblocks0 = calh % 2 == 0 ? calh : calh + 1;
+                int wblocks1 = calw % 2 == 0 ? calw / 2 : (calw + 1) / 2;
+                int hblocks1 = calh % 2 == 0 ? calh / 2 : (calh + 1) / 2;
 
                 //Get coefficients
                 jvirt_array<JBLOCK>[] JBlock = jpegData.jpeg_read_coefficients();
-                var coefficients = JBlock[0].Access(0, blockCountY);
+                JBLOCK[][][] coefficients =
+                {
+                    JBlock[0].Access(0, hblocks0),
+                    JBlock[1].Access(0, hblocks1),
+                    JBlock[2].Access(0, hblocks1)
+                };
 
                 //Read
-                List<bool> messageBits = DecodeMessage(coefficients, blockCountX, blockCountY);
+                List<bool> messageBits = DecodeMessage(coefficients);
                 byte[] messageBytes = ConvertBitsToBytes(messageBits.ToArray());
 
                 if (messageBytes.Length < 4)
                 {
-                    message = "";
+                    message = "Error";
                     resultMessage = "Could not read enough bytes to read any message";
                     return false;
                 }
@@ -178,6 +207,46 @@ namespace ImageSteganography
             }
 
             return bytes;
+        }
+
+        /// <summary>
+        /// Calculates the peak signal to noise ratio
+        /// </summary>
+        public static double CalculatePSNR(Bitmap originalImage, Bitmap compressedImage)
+        {
+            if (originalImage.Size != compressedImage.Size)
+                throw new ArgumentException("Images must have the same dimensions.");
+
+            int width = originalImage.Width;
+            int height = originalImage.Height;
+
+            double mse = 0;
+
+            // Calculate Mean Squared Error (MSE)
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    Color originalPixel = originalImage.GetPixel(x, y);
+                    Color compressedPixel = compressedImage.GetPixel(x, y);
+
+                    int diffR = originalPixel.R - compressedPixel.R;
+                    int diffG = originalPixel.G - compressedPixel.G;
+                    int diffB = originalPixel.B - compressedPixel.B;
+
+                    mse += diffR * diffR + diffG * diffG + diffB * diffB;
+                }
+            }
+
+            mse /= (width * height * 3); // Average over all pixels and channels (RGB)
+
+            // Maximum possible pixel value
+            double maxPixelValue = 255; // For an 8-bit image
+
+            // Calculate PSNR
+            double psnr = 10 * Math.Log10((maxPixelValue * maxPixelValue) / mse);
+
+            return psnr;
         }
     }
 }
