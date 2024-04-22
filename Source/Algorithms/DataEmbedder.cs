@@ -12,7 +12,7 @@ namespace ImageSteganography
         public abstract List<bool> DecodeMessage(JBLOCK[][][] coefficients);
 
 
-        public bool Enocode(string imagePath, string message, out string resultMessage)
+        public bool Encode(string imagePath, string message, out string resultMessage)
         {
             //Set quality
             int quality = 80;
@@ -102,10 +102,23 @@ namespace ImageSteganography
                 oJpegDecompress.jpeg_abort_decompress();
 
 
+                //Calculate PSNR
                 var original = new Bitmap(imagePath);
                 var modified = new Bitmap(newImagePath);
 
-                double psnr = CalculatePSNR(original, modified);
+                MemoryStream memoryStream2 = new MemoryStream();
+                var encoder2 = ImageCodecInfo.GetImageEncoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                var encParams2 = new EncoderParameters(1);
+                encParams2.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+                original.Save(memoryStream2, encoder2, encParams2);
+
+                Bitmap jpegOriginal = new Bitmap(memoryStream2);
+
+                double psnr = CalculatePSNR(jpegOriginal, modified);
+
+                original.Dispose();
+                jpegOriginal.Dispose();
+                modified.Dispose();
 
                 resultMessage = $"Encoded image (capacity: {embeddSize} bytes) (PSNR: {psnr})";
                 return true;
@@ -222,7 +235,7 @@ namespace ImageSteganography
 
             double mse = 0;
 
-            // Calculate Mean Squared Error (MSE)
+            //Calculate Mean Squared Error (MSE)
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -238,12 +251,9 @@ namespace ImageSteganography
                 }
             }
 
-            mse /= (width * height * 3); // Average over all pixels and channels (RGB)
+            mse /= (width * height * 3);
 
-            // Maximum possible pixel value
-            double maxPixelValue = 255; // For an 8-bit image
-
-            // Calculate PSNR
+            double maxPixelValue = 255;
             double psnr = 10 * Math.Log10((maxPixelValue * maxPixelValue) / mse);
 
             return psnr;

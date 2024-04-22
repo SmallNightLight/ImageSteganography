@@ -35,7 +35,7 @@ namespace ImageSteganography
         {
             if (_dataEmbedder == null) return;
 
-            _dataEmbedder.Enocode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage);
+            _dataEmbedder.Encode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage);
             AddToConsole(resultMessage);
         }
 
@@ -68,7 +68,27 @@ namespace ImageSteganography
                 case "LSBExclude01":
                     _dataEmbedder = new DataEmbedderLSBExcl01();
                     break;
+                case "PickC":
+                    _dataEmbedder = new DataEmbedderPickC();
+                    break;
             }
+        }
+
+        private void TestButton_Click(object sender, EventArgs e)
+        {
+            string result = "";
+
+            for(int i = 0; i < 64; i++)
+            {
+                _dataEmbedder = new DataEmbedderPickC();
+                (_dataEmbedder as DataEmbedderPickC).SetIndex(i);
+
+                _dataEmbedder.Encode(EncodingPath.Text, EncodingMessage.Text, out string resultMessage);
+
+                result += $"\n{i}: " + resultMessage;
+            }
+
+            result += "END";
         }
     }
 }
