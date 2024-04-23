@@ -12,11 +12,8 @@ namespace ImageSteganography
         public abstract List<bool> DecodeMessage(JBLOCK[][][] coefficients);
 
 
-        public bool Encode(string imagePath, string message, out string resultMessage)
+        public bool Encode(string imagePath, int quality, string message, out string resultMessage)
         {
-            //Set quality
-            int quality = 80;
-
             //Get new image path
             if (imagePath == null)
             {

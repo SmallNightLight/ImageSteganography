@@ -44,6 +44,9 @@
             AlgorithmDropDown = new ComboBox();
             AlgorithmLabel = new Label();
             TestButton = new Button();
+            Quality = new NumericUpDown();
+            QualityLabel = new Label();
+            ((System.ComponentModel.ISupportInitialize)Quality).BeginInit();
             SuspendLayout();
             // 
             // EncodingPath
@@ -183,16 +186,16 @@
             // AlgorithmLabel
             // 
             AlgorithmLabel.AutoSize = true;
-            AlgorithmLabel.Font = new Font("Segoe UI", 12F);
-            AlgorithmLabel.Location = new Point(667, 90);
+            AlgorithmLabel.Font = new Font("Segoe UI", 10F);
+            AlgorithmLabel.Location = new Point(647, 103);
             AlgorithmLabel.Name = "AlgorithmLabel";
-            AlgorithmLabel.Size = new Size(80, 21);
+            AlgorithmLabel.Size = new Size(70, 19);
             AlgorithmLabel.TabIndex = 14;
             AlgorithmLabel.Text = "Algorithm";
             // 
             // TestButton
             // 
-            TestButton.Location = new Point(687, 203);
+            TestButton.Location = new Point(692, 260);
             TestButton.Name = "TestButton";
             TestButton.Size = new Size(75, 23);
             TestButton.TabIndex = 15;
@@ -200,11 +203,33 @@
             TestButton.UseVisualStyleBackColor = true;
             TestButton.Click += TestButton_Click;
             // 
+            // Quality
+            // 
+            Quality.Location = new Point(647, 193);
+            Quality.Name = "Quality";
+            Quality.Size = new Size(120, 23);
+            Quality.TabIndex = 16;
+            Quality.ValueChanged += Quality_ValueChanged;
+            // 
+            // QualityLabel
+            // 
+            QualityLabel.AutoSize = true;
+            QualityLabel.Font = new Font("Segoe UI", 10F);
+            QualityLabel.ImageAlign = ContentAlignment.MiddleLeft;
+            QualityLabel.Location = new Point(647, 171);
+            QualityLabel.Name = "QualityLabel";
+            QualityLabel.Size = new Size(53, 19);
+            QualityLabel.TabIndex = 17;
+            QualityLabel.Text = "Quality";
+            QualityLabel.TextAlign = ContentAlignment.MiddleLeft;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(QualityLabel);
+            Controls.Add(Quality);
             Controls.Add(TestButton);
             Controls.Add(AlgorithmLabel);
             Controls.Add(AlgorithmDropDown);
@@ -223,6 +248,7 @@
             Controls.Add(EncodingPath);
             Name = "Form1";
             Text = "        ";
+            ((System.ComponentModel.ISupportInitialize)Quality).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -244,5 +270,7 @@
         private ComboBox AlgorithmDropDown;
         private Label AlgorithmLabel;
         private Button TestButton;
+        private NumericUpDown Quality;
+        private Label QualityLabel;
     }
 }
