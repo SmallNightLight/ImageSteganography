@@ -4,10 +4,9 @@ namespace ImageSteganography
 {
     public class DataEmbedderSwapDCT : DataEmbedder
     {
-        //private List<Pair> _pairs = [new Pair(2, 16), new Pair(9, 18), new Pair(10, 17)];
-        private List<Pair> _pairs = [new Pair(2, 3), new Pair(9, 10), new Pair(16, 17)];
+        private List<Pair> _pairs = [new Pair(2, 16), new Pair(3, 24), new Pair(9, 18), new Pair(10, 17), new Pair(11, 25), new Pair(4, 32)];
         private int _minDistance = 1;
-        private int _maxDistance = 4;
+        private int _maxDistance = 3;
 
         public override bool EmbeddMessage(ref JBLOCK[][][] coefficients, bool[] data, out int embeddSize)
         {
@@ -41,17 +40,13 @@ namespace ImageSteganography
                         int c1 = coefficients[channel][i][j][pair.Number1];
                         int c2 = coefficients[channel][i][j][pair.Number2];
 
-                        //Skip 0 and 1 values to reduce noise (also reduces capacity)
-                        //if (Diff(c1, c2) > 10 || Diff(c1, c2) < 2) continue;
-                        //if (Diff(c2, c3) > 10 || Diff(c2, c3) < 2) continue;
-                        //if (Diff(c3, c1) > 10 || Diff(c3, c1) < 2) continue;
-
-                        //change coefficients
+                        
 
                         int d = Diff(c1, c2);
 
                         if (d < _minDistance || d > _maxDistance) continue;
 
+                        //Change coefficients
                         if (bit)
                         {
                             if (c1 < c2)
@@ -120,16 +115,5 @@ namespace ImageSteganography
             Number1 = n1;
             Number2 = n2;
         }
-
-        //public bool IsOne()
-        //{
-        //    if (Number1 < Number3 && Number3 < Number2) return true;
-        //    if (Number2 < Number1 && Number1 < Number3) return true;
-        //    if (Number3 < Number2 && Number2 < Number1) return true;
-
-        //    return false;
-        //}
-
-        //public bool IsZero() => !IsOne();
     }
 }

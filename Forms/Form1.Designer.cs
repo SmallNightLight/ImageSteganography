@@ -43,7 +43,6 @@
             ImageConsole = new TextBox();
             AlgorithmDropDown = new ComboBox();
             AlgorithmLabel = new Label();
-            TestButton = new Button();
             Quality = new NumericUpDown();
             QualityLabel = new Label();
             ((System.ComponentModel.ISupportInitialize)Quality).BeginInit();
@@ -176,7 +175,7 @@
             // AlgorithmDropDown
             // 
             AlgorithmDropDown.FormattingEnabled = true;
-            AlgorithmDropDown.Items.AddRange(new object[] { "LSB", "LSBExclude01", "PeakLSB", "PickC", "SwapDCT" });
+            AlgorithmDropDown.Items.AddRange(new object[] { "LSB", "LSBExclude01", "PeakLSB", "SwapDCT" });
             AlgorithmDropDown.Location = new Point(646, 125);
             AlgorithmDropDown.Name = "AlgorithmDropDown";
             AlgorithmDropDown.Size = new Size(121, 23);
@@ -192,16 +191,6 @@
             AlgorithmLabel.Size = new Size(70, 19);
             AlgorithmLabel.TabIndex = 14;
             AlgorithmLabel.Text = "Algorithm";
-            // 
-            // TestButton
-            // 
-            TestButton.Location = new Point(692, 260);
-            TestButton.Name = "TestButton";
-            TestButton.Size = new Size(75, 23);
-            TestButton.TabIndex = 15;
-            TestButton.Text = "Test";
-            TestButton.UseVisualStyleBackColor = true;
-            TestButton.Click += TestButton_Click;
             // 
             // Quality
             // 
@@ -230,7 +219,6 @@
             ClientSize = new Size(800, 450);
             Controls.Add(QualityLabel);
             Controls.Add(Quality);
-            Controls.Add(TestButton);
             Controls.Add(AlgorithmLabel);
             Controls.Add(AlgorithmDropDown);
             Controls.Add(ImageConsole);
@@ -269,7 +257,6 @@
         private TextBox ImageConsole;
         private ComboBox AlgorithmDropDown;
         private Label AlgorithmLabel;
-        private Button TestButton;
         private NumericUpDown Quality;
         private Label QualityLabel;
     }

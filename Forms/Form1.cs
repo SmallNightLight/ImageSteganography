@@ -73,9 +73,6 @@ namespace ImageSteganography
                 case "PeakLSB":
                     _dataEmbedder = new DataEmbedderPeakLSB();
                     break;
-                case "PickC":
-                    _dataEmbedder = new DataEmbedderPickC();
-                    break;
                 case "SwapDCT":
                     _dataEmbedder = new DataEmbedderSwapDCT();
                     break;
@@ -84,6 +81,7 @@ namespace ImageSteganography
 
         private void TestButton_Click(object sender, EventArgs e)
         {
+            //Test capacity or PSNR
             string result = "";
 
             for (int i = 0; i < 64; i++)
